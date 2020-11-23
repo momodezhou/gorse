@@ -14,36 +14,33 @@
 package storage
 
 import (
-	"github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
 	"time"
 )
 
-type mockRedis struct {
+type mockSQLDatabase struct {
 	Database
-	server *miniredis.Miniredis
 }
 
-func newMockRedis(t *testing.T) *mockRedis {
+func newMockSQLDatabase(t *testing.T, name string) *mockSQLDatabase {
+	database := new(mockSQLDatabase)
 	var err error
-	db := new(mockRedis)
-	db.server, err = miniredis.Run()
+	database.Database, err = Open("ramsql://" + name)
 	assert.Nil(t, err)
-	db.Database, err = Open(redisPrefix + db.server.Addr())
+	err = database.Init()
 	assert.Nil(t, err)
-	return db
+	return database
 }
 
-func (db *mockRedis) Close(t *testing.T) {
-	err := db.Database.Close()
+func (mock *mockSQLDatabase) Close(t *testing.T) {
+	err := mock.Database.Close()
 	assert.Nil(t, err)
-	db.server.Close()
 }
 
-func TestRedis_Users(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_Users(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_Users")
 	defer db.Close(t)
 	// Insert users
 	for i := 0; i < 10; i++ {
@@ -74,8 +71,8 @@ func TestRedis_Users(t *testing.T) {
 	}
 }
 
-func TestRedis_Feedback(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_Feedback(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_Feedback")
 	defer db.Close(t)
 	// Insert ret
 	feedback := []Feedback{
@@ -133,8 +130,8 @@ func TestRedis_Feedback(t *testing.T) {
 	assert.Equal(t, float64(6), ret[0].Rating)
 }
 
-func TestRedis_Item(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_Item(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_Item")
 	defer db.Close(t)
 	// Items
 	items := []Item{
@@ -216,8 +213,8 @@ func TestRedis_Item(t *testing.T) {
 	}
 }
 
-func TestRedis_Ignore(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_Ignore(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_Ignore")
 	defer db.Close(t)
 	// Insert ignore
 	ignores := []string{"0", "1", "2", "3", "4", "5"}
@@ -238,8 +235,8 @@ func TestRedis_Ignore(t *testing.T) {
 	}
 }
 
-func TestRedis_Meta(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_Meta(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_Meta")
 	defer db.Close(t)
 	// Set meta string
 	if err := db.SetString("1", "2"); err != nil {
@@ -269,8 +266,8 @@ func TestRedis_Meta(t *testing.T) {
 	}
 }
 
-func TestRedis_List(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_List(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_List")
 	defer db.Close(t)
 	type ListOperator struct {
 		Set func(label string, items []RecommendedItem) error
@@ -321,8 +318,8 @@ func TestRedis_List(t *testing.T) {
 	}
 }
 
-func TestRedis_DeleteUser(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_DeleteUser(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_DeleteUser")
 	defer db.Close(t)
 	// Insert ret
 	feedback := []Feedback{
@@ -358,8 +355,8 @@ func TestRedis_DeleteUser(t *testing.T) {
 	}
 }
 
-func TestRedis_DeleteItem(t *testing.T) {
-	db := newMockRedis(t)
+func TestSQLDatabase_DeleteItem(t *testing.T) {
+	db := newMockSQLDatabase(t, "TestSQLDatabase_DeleteItem")
 	defer db.Close(t)
 	// Insert ret
 	feedback := []Feedback{
