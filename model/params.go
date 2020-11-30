@@ -166,14 +166,14 @@ func NewParamsFromConfig(config *config.Config, metaData *toml.MetaData) Params 
 		value interface{}
 	}
 	values := []ParamValues{
-		{"lr", Lr, config.Params.Lr},
-		{"reg", Reg, config.Params.Reg},
-		{"n_epochs", NEpochs, config.Params.NEpochs},
-		{"n_factors", NFactors, config.Params.NFactors},
-		{"random_state", RandomState, config.Params.RandomState},
-		{"init_mean", InitMean, config.Params.InitMean},
-		{"init_std", InitStdDev, config.Params.InitStdDev},
-		{"alpha", Weight, config.Params.Weight},
+		{"lr", Lr, config.Model.Params.Lr},
+		{"reg", Reg, config.Model.Params.Reg},
+		{"n_epochs", NEpochs, config.Model.Params.NEpochs},
+		{"n_factors", NFactors, config.Model.Params.NFactors},
+		{"random_state", RandomState, config.Model.Params.RandomState},
+		{"init_mean", InitMean, config.Model.Params.InitMean},
+		{"init_std", InitStdDev, config.Model.Params.InitStdDev},
+		{"alpha", Weight, config.Model.Params.Weight},
 	}
 	params := Params{}
 	for _, v := range values {
@@ -184,5 +184,5 @@ func NewParamsFromConfig(config *config.Config, metaData *toml.MetaData) Params 
 	return params
 }
 
-// ParameterGrid contains candidate for grid search.
-type ParameterGrid map[ParamName][]interface{}
+// ParamsGrid contains candidate for grid search.
+type ParamsGrid map[ParamName][]interface{}
